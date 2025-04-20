@@ -2,15 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dave and Bambi Mania Mix - Opposition</title>
-  <style>
-    body { margin: 0; background: black; overflow: hidden; }
-    canvas { display: block; margin: auto; background: #111; }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <h1>Dave and Bambi Mania Mix</h1>
   <canvas id="gameCanvas" width="800" height="600"></canvas>
-  <script src="js/game.js"></script>
+
+  <!-- スマホ用ボタン -->
+  <div id="touch-controls">
+    <button data-lane="0">◀</button>
+    <button data-lane="1">▼</button>
+    <button data-lane="2">▲</button>
+    <button data-lane="3">▶</button>
+  </div>
+
+  <script src="game.js"></script>
 </body>
 </html>
