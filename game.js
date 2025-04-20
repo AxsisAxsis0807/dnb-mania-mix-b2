@@ -1,43 +1,50 @@
-window.onload = async () => {
-  const audio = new Audio('assets/music/opposition.ogg');
-  const response = await fetch('data/songs/opposition/chart.json');
-  const chart = await response.json();
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
-  const canvas = document.getElementById('gameCanvas');
-  const ctx = canvas.getContext('2d');
+const chartFile = 'chart.json';
+const audioFile = 'opposition.ogg';
 
-  let startTime = null;
-  const notes = chart.notes;
-  const pressed = {};
+let notes = [];
+let startTime = 0;
+let audio = new Audio(audioFile);
+let isPlaying = false;
 
-  document.addEventListener('keydown', e => pressed[e.key] = true);
-  document.addEventListener('keyup', e => pressed[e.key] = false);
+fetch(chartFile)
+  .then(response => response.json())
+  .then(data => {
+    notes = data.notes; // JSON形式：[{ time: 秒数, lane: 0~3 }]
+  });
 
-  function drawNote(note, currentTime) {
-    const timeDiff = note.time - currentTime;
-    const y = canvas.height - timeDiff * 300;
-    const x = 100 + note.lane * 100;
-    ctx.fillStyle = 'white';
-    ctx.fillRect(x, y, 80, 20);
-  }
-
-  function gameLoop(timestamp) {
-    if (!startTime) {
-      startTime = timestamp;
-      audio.play();
-    }
-    const currentTime = (timestamp - startTime) / 1000;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    notes.forEach(note => {
-      if (note.time > currentTime - 2 && note.time < currentTime + 2) {
-        drawNote(note, currentTime);
-      }
-    });
-
+document.addEventListener('keydown', (e) => {
+  if (!isPlaying && e.code === 'Space') {
+    startTime = performance.now();
+    audio.play();
+    isPlaying = true;
     requestAnimationFrame(gameLoop);
   }
+});
 
-  requestAnimationFrame(gameLoop);
-};
+function gameLoop(timestamp) {
+  const currentTime = (performance.now() - startTime) / 1000;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // レーンを描画（4レーン）
+  for (let i = 0; i < 4; i++) {
+    ctx.fillStyle = '#333';
+    ctx.fillRect(i * 200, 0, 200, canvas.height);
+  }
+
+  // ノーツを描画
+  for (let note of notes) {
+    const timeDiff = note.time - currentTime;
+    const y = canvas.height - timeDiff * 300; // 落下スピード調整
+
+    if (y < -50 || y > canvas.height + 50) continue;
+
+    ctx.fillStyle = 'white';
+    ctx.fillRect(note.lane * 200 + 50, y, 100, 20);
+  }
+
+  if (isPlaying) requestAnimationFrame(gameLoop);
+}
