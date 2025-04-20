@@ -82,3 +82,10 @@ function gameLoop() {
 
   if (isPlaying) requestAnimationFrame(gameLoop);
 }
+audio.addEventListener('canplaythrough', () => {
+  console.log('音声ファイルが読み込まれました');
+});
+
+audio.addEventListener('error', (e) => {
+  console.error('音声ファイルの読み込みエラー:', e);
+});
